@@ -523,6 +523,25 @@ class SequenceRecurrent(Sequence):
                         elif isinstance(value, list) or isinstance(value, tuple):
                             sample[key] = [tf.functional.crop(
                                 v, i, j, h, w) for v in value]
+        # Data augmentation (rotation)
+        angle = random.uniform(-30, 30)  # -30度から30度の範囲でランダムに回転
+        for sample in sequence:
+            for key in keys_to_crop:
+                if key in sample:
+                    if isinstance(sample[key], torch.Tensor):
+                        sample[key] = TF.rotate(sample[key], angle)
+                    elif isinstance(sample[key], (list, tuple)):
+                        sample[key] = [TF.rotate(v, angle) for v in sample[key]]
+
+        # Data augmentation (flip)
+        if random.random() > 0.5:  # 50%の確率で水平フリップ
+            for sample in sequence:
+                for key in keys_to_crop:
+                    if key in sample:
+                        if isinstance(sample[key], torch.Tensor):
+                            sample[key] = TF.hflip(sample[key])
+                        elif isinstance(sample[key], (list, tuple)):
+                            sample[key] = [TF.hflip(v) for v in sample[key]]
         return sequence
 
 

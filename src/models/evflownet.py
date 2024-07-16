@@ -10,24 +10,43 @@ class EVFlowNet(nn.Module):
         super(EVFlowNet,self).__init__()
         self._args = args
 
-        self.encoder1 = general_conv2d(in_channels = 4, out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder2 = general_conv2d(in_channels = _BASE_CHANNELS, out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder3 = general_conv2d(in_channels = 2*_BASE_CHANNELS, out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
-        self.encoder4 = general_conv2d(in_channels = 4*_BASE_CHANNELS, out_channels=8*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+        #batch正規化してみる
+        # self.encoder1 = general_conv2d(in_channels = 4, out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+        # self.encoder2 = general_conv2d(in_channels = _BASE_CHANNELS, out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+        # self.encoder3 = general_conv2d(in_channels = 2*_BASE_CHANNELS, out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+        # self.encoder4 = general_conv2d(in_channels = 4*_BASE_CHANNELS, out_channels=8*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
 
-        self.resnet_block = nn.Sequential(*[build_resnet_block(8*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm) for i in range(2)])
+        # self.resnet_block = nn.Sequential(*[build_resnet_block(8*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm) for i in range(2)])
+
+        # self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,
+        #                 out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+
+        # self.decoder2 = upsample_conv2d_and_predict_flow(in_channels=8*_BASE_CHANNELS+2,
+        #                 out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+
+        # self.decoder3 = upsample_conv2d_and_predict_flow(in_channels=4*_BASE_CHANNELS+2,
+        #                 out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+
+        # self.decoder4 = upsample_conv2d_and_predict_flow(in_channels=2*_BASE_CHANNELS+2,
+        #                 out_channels=int(_BASE_CHANNELS/2), do_batch_norm=not self._args.no_batch_norm)
+        self.encoder1 = general_conv2d(in_channels = 4, out_channels=_BASE_CHANNELS, do_batch_norm=True)
+        self.encoder2 = general_conv2d(in_channels = _BASE_CHANNELS, out_channels=2*_BASE_CHANNELS, do_batch_norm=True)
+        self.encoder3 = general_conv2d(in_channels = 2*_BASE_CHANNELS, out_channels=4*_BASE_CHANNELS, do_batch_norm=True)
+        self.encoder4 = general_conv2d(in_channels = 4*_BASE_CHANNELS, out_channels=8*_BASE_CHANNELS, do_batch_norm=True)
+
+        self.resnet_block = nn.Sequential(*[build_resnet_block(8*_BASE_CHANNELS, do_batch_norm=True) for i in range(2)])
 
         self.decoder1 = upsample_conv2d_and_predict_flow(in_channels=16*_BASE_CHANNELS,
-                        out_channels=4*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=4*_BASE_CHANNELS, do_batch_norm=True)
 
         self.decoder2 = upsample_conv2d_and_predict_flow(in_channels=8*_BASE_CHANNELS+2,
-                        out_channels=2*_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=2*_BASE_CHANNELS, do_batch_norm=True)
 
         self.decoder3 = upsample_conv2d_and_predict_flow(in_channels=4*_BASE_CHANNELS+2,
-                        out_channels=_BASE_CHANNELS, do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=_BASE_CHANNELS, do_batch_norm=True)
 
         self.decoder4 = upsample_conv2d_and_predict_flow(in_channels=2*_BASE_CHANNELS+2,
-                        out_channels=int(_BASE_CHANNELS/2), do_batch_norm=not self._args.no_batch_norm)
+                        out_channels=int(_BASE_CHANNELS/2), do_batch_norm=True)
 
     def forward(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         # encoder
